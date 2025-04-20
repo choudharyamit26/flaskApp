@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Internal Server Error{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>500 - Internal Server Error</h1>
+    <div class="error-description">
+        <p>Something went wrong on our servers.</p>
+        <p>We've been notified of the issue and are working to fix it.</p>
+    </div>
+    <div class="error-actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+            <i class="fa fa-home"></i> Take Me Home
+        </a>
+        <a href="javascript:history.back()" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Go Back
+        </a>
+    </div>
+</div>
+{% endblock %}

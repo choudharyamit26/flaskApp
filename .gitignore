@@ -1,0 +1,11 @@
+.qodo
+env/
+__pycache__/
+dev.db
+.vscode/
+.pytest_cache/
+*.pyc
+*.pyo
+.ruff_cache
+*.pyd
+

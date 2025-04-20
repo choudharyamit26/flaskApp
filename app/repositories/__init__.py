@@ -1,0 +1,4 @@
+from app.repositories.user_repository import UserRepository
+from app.repositories.author_repository import AuthorRepository
+from app.repositories.book_repository import BookRepository
+from app.repositories.publisher_repository import PublisherRepository

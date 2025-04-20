@@ -1,0 +1,852 @@
+
+openapi: 3.0.0
+info:
+  title: FlaskApp API
+  description: |
+    API documentation for the FlaskApp library management system.
+    This system manages books, authors, publishers, and user authentication.
+  version: 1.0.0
+  contact:
+    email: admin@flaskapp.com
+  
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://api.flaskapp.com
+    description: Production server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication
+  
+  schemas:
+    Error:
+      type: object
+      description: Standard error response format
+      properties:
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Resource not found"
+        error:
+          type: string
+          description: Error identifier or type
+          example: "NOT_FOUND"
+        status_code:
+          type: integer
+          description: HTTP status code
+          example: 404
+    
+    LoginRequest:
+      type: object
+      description: User login credentials
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          description: User's password
+          example: "password123"
+    
+    TokenResponse:
+      type: object
+      description: Authentication token response
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          description: JWT refresh token for obtaining new access tokens
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+          example: 3600
+    
+    RegisterRequest:
+      type: object
+      description: New user registration data
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "newuser@example.com"
+        password:
+          type: string
+          format: password
+          description: User's password
+          example: "securepassword123"
+        name:
+          type: string
+          description: User's full name
+          example: "John Doe"
+    
+    Author:
+      type: object
+      description: Author information
+      properties:
+        id:
+          type: integer
+          description: Unique author identifier
+          example: 1
+        name:
+          type: string
+          description: Author's full name
+          example: "Jane Austen"
+        biography:
+          type: string
+          description: Author's biographical information
+          example: "Jane Austen was an English novelist known primarily for her six major novels..."
+        date_of_birth:
+          type: string
+          format: date
+          description: Author's date of birth
+          example: "1775-12-16"
+        created_at:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: "2023-01-15T14:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Record last update timestamp
+          example: "2023-01-15T14:30:00Z"
+    
+    AuthorCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Author's full name
+          example: "Jane Austen"
+        biography:
+          type: string
+          description: Author's biographical information
+          example: "Jane Austen was an English novelist known primarily for her six major novels..."
+        date_of_birth:
+          type: string
+          format: date
+          description: Author's date of birth
+          example: "1775-12-16"
+    
+    Book:
+      type: object
+      description: Book information
+      properties:
+        id:
+          type: integer
+          description: Unique book identifier
+          example: 1
+        title:
+          type: string
+          description: Book title
+          example: "Pride and Prejudice"
+        description:
+          type: string
+          description: Book description or summary
+          example: "Pride and Prejudice follows the character development of Elizabeth Bennet..."
+        isbn:
+          type: string
+          description: International Standard Book Number
+          example: "978-3-16-148410-0"
+        published_date:
+          type: string
+          format: date
+          description: Book publication date
+          example: "1813-01-28"
+        author_id:
+          type: integer
+          description: ID of the book's author
+          example: 1
+        publisher_id:
+          type: integer
+          description: ID of the book's publisher
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: "2023-01-15T14:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Record last update timestamp
+          example: "2023-01-15T14:30:00Z"
+    
+    BookCreate:
+      type: object
+      required:
+        - title
+        - author_id
+      properties:
+        title:
+          type: string
+          description: Book title
+          example: "Pride and Prejudice"
+        description:
+          type: string
+          description: Book description or summary
+          example: "Pride and Prejudice follows the character development of Elizabeth Bennet..."
+        isbn:
+          type: string
+          description: International Standard Book Number
+          example: "978-3-16-148410-0"
+        published_date:
+          type: string
+          format: date
+          description: Book publication date
+          example: "1813-01-28"
+        author_id:
+          type: integer
+          description: ID of the book's author
+          example: 1
+        publisher_id:
+          type: integer
+          description: ID of the book's publisher
+          example: 1
+    
+    Publisher:
+      type: object
+      description: Publisher information
+      properties:
+        id:
+          type: integer
+          description: Unique publisher identifier
+          example: 1
+        name:
+          type: string
+          description: Publisher name
+          example: "Penguin Books"
+        founded_year:
+          type: integer
+          description: Year the publisher was founded
+          example: 1935
+        headquarters:
+          type: string
+          description: Location of the publisher's headquarters
+          example: "London, UK"
+        created_at:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: "2023-01-15T14:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Record last update timestamp
+          example: "2023-01-15T14:30:00Z"
+    
+    PublisherCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Publisher name
+          example: "Penguin Books"
+        founded_year:
+          type: integer
+          description: Year the publisher was founded
+          example: 1935
+        headquarters:
+          type: string
+          description: Location of the publisher's headquarters
+          example: "London, UK"
+
+    PaginatedResponse:
+      type: object
+      description: Common pagination response structure
+      properties:
+        total:
+          type: integer
+          description: Total number of items
+          example: 42
+        pages:
+          type: integer
+          description: Total number of pages
+          example: 5
+        page:
+          type: integer
+          description: Current page number
+          example: 1
+
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      description: Create a new user account with email, password, and name
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User registered successfully"
+                  user_id:
+                    type: integer
+                    example: 42
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/auth/login:
+    post:
+      summary: Authenticate user and get tokens
+      description: Login with email and password to receive access and refresh tokens
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/auth/refresh:
+    post:
+      summary: Refresh access token
+      description: Use a valid refresh token to obtain a new access token
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/authors:
+    get:
+      summary: Get all authors
+      description: Retrieve a paginated list of all authors
+      tags:
+        - Authors
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+      responses:
+        '200':
+          description: List of authors
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      authors:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Author'
+    post:
+      summary: Create a new author
+      description: Add a new author to the database
+      tags:
+        - Authors
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorCreate'
+      responses:
+        '201':
+          description: Author created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/authors/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: Author ID
+    get:
+      summary: Get author by ID
+      description: Retrieve details for a specific author
+      tags:
+        - Authors
+      responses:
+        '200':
+          description: Author details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update an author
+      description: Modify an existing author's information
+      tags:
+        - Authors
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorCreate'
+      responses:
+        '200':
+          description: Author updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: Delete an author
+      description: Remove an author from the database
+      tags:
+        - Authors
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Author deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/books:
+    get:
+      summary: Get all books
+      description: Retrieve a paginated list of books with optional filtering
+      tags:
+        - Books
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+        - in: query
+          name: author_id
+          schema:
+            type: integer
+          description: Filter by author ID
+        - in: query
+          name: publisher_id
+          schema:
+            type: integer
+          description: Filter by publisher ID
+      responses:
+        '200':
+          description: List of books
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      books:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Book'
+    
+    post:
+      summary: Create a new book
+      description: Add a new book to the database
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookCreate'
+      responses:
+        '201':
+          description: Book created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/books/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: Book ID
+    get:
+      summary: Get book by ID
+      description: Retrieve details for a specific book
+      tags:
+        - Books
+      responses:
+        '200':
+          description: Book details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update a book
+      description: Modify an existing book's information
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookCreate'
+      responses:
+        '200':
+          description: Book updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: Delete a book
+      description: Remove a book from the database
+      tags:
+        - Books
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Book deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/publishers:
+    get:
+      summary: Get all publishers
+      description: Retrieve a paginated list of all publishers
+      tags:
+        - Publishers
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+      responses:
+        '200':
+          description: List of publishers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      publishers:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Publisher'
+    
+    post:
+      summary: Create a new publisher
+      description: Add a new publisher to the database
+      tags:
+        - Publishers
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublisherCreate'
+      responses:
+        '201':
+          description: Publisher created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/publishers/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: Publisher ID
+    get:
+      summary: Get publisher by ID
+      description: Retrieve details for a specific publisher
+      tags:
+        - Publishers
+      responses:
+        '200':
+          description: Publisher details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
+        '404':
+          description: Publisher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update a publisher
+      description: Modify an existing publisher's information
+      tags:
+        - Publishers
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublisherCreate'
+      responses:
+        '200':
+          description: Publisher updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Publisher'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Publisher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      summary: Delete a publisher
+      description: Remove a publisher from the database
+      tags:
+        - Publishers
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Publisher deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Publisher not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}403 - Forbidden{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <h1>403 - Forbidden</h1>
+    <div class="error-description">
+        <p>You don't have permission to access this resource.</p>
+        <p>Please contact the administrator if you believe this is a mistake.</p>
+    </div>
+    <div class="error-actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+            <i class="fa fa-home"></i> Take Me Home
+        </a>
+        <a href="javascript:history.back()" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Go Back
+        </a>
+    </div>
+</div>
+{% endblock %}
